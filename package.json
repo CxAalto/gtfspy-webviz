@@ -1,0 +1,19 @@
+{
+  "name": "gtfspy-webviz",
+  "version": "1.0.0",
+  "description": "Web visualizer for gtfspy",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@version.aalto.fi:CxAalto/gtfspy-webviz.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "coffee-script": "^1.12.6"
+  }
+}

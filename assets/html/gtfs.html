@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<!-- Polluting 'global scope' a bit for simpler access to stuff. -->
+<html lang="en" ng-app="gtfsApp" ng-init=
+            "appdata = {
+                add_offset_to_routes: true,
+                color_and_size_stops_by_count: true,
+                color_and_size_segments_by_count: true,
+                color_by_route: true,
+                color_by_agency: false,
+                show_stop_data: true,
+                show_segment_data: true,
+                show_route_data: true,
+                loading: false,
+                sim_speed_min:-50,
+                sim_speed:20,
+                sim_speed_max:100,
+                sim_time_min:0,
+                sim_time:0,
+                sim_time_max:0,
+                spreading_sim_time_min:0,
+                spreading_sim_time:0,
+                spreading_sim_time_max:0,
+                show_footer:true,
+                show_data_select:true,
+                tail_length_min:0,
+                tail_length:30,
+                tail_length_max:600,
+                use_shapes:true,
+                durations:[60, 300, 600, 1800, 3600],
+                duration:600,
+                anim_stopped:true,
+                anim_data:{},
+                anim_data_ready:false,
+                data_loadable:false,
+                anim_visible:true,
+                spreading_stopped:true,
+                spreading_data:{},
+                spreading_data_ready:false,
+                spreading_visible:true,
+                spreading_lat : null,
+                spreading_lon : null,
+                spreading_sim_speed_min:-50,
+                spreading_sim_speed:20,
+                spreading_sim_speed_max:100,
+                stats: null,
+                tabToShow: null
+                };"
+>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="initial-scale=1,user-scalable=yes,maximum-scale=1,width=device-width">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="theme-color" content="#000000">
+  <meta name="description" content="Public transport visualization.">
+
+
+  <title>Timetable (GTFS) visualization with AngularJS</title>
+
+  <script src="../lib/underscore-min.js"></script>
+  <script src="../lib/angular/angular.js"></script>
+  <script src="../lib/leaflet/leaflet.js"></script>
+  <script src="../lib/leaflet-label.js"></script>
+  <script src="https://cdn.gitcdn.link/cdn/angular/bower-material/v1.0.6/angular-material.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular-animate.min.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular-aria.min.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular-messages.min.js"></script>
+  <script src="http://ngmaterial.assets.s3.amazonaws.com/svg-assets-cache.js"></script>
+  <script src="../lib/jquery-1.12.1.js"></script>
+  <script src="../lib/jquery.color-2.1.2.js"></script>
+  <script src="../lib/d3.js"></script>
+  <script src="../lib/plotly-latest.min.js"></script>
+  <script src="../js/trip.js"></script>
+  <script src="../js/gtfs_app.js"></script>
+  <script src="../js/tab_controller.js"></script>
+  <script src="../js/global_controller.js"></script>
+  <script src="../js/map_controller.js"></script>
+  <script src="../js/datasel_controller.js"></script>
+  <script src="../js/gtfs_service.js"></script>
+  <script src="../js/anim_params_controller.js"></script>
+  <script src="../js/spreading_params_controller.js"></script>
+  <script src="../js/stop_params_controller.js"></script>
+  <script src="../js/segment_params_controller.js"></script>
+  <script src="../js/stats_controller.js"></script>
+  <script src="../js/plots_controller.js"></script>
+  <script src="../js/route_params_controller.js"></script>
+  <script src="../js/colormap.js"></script>
+
+  <link rel="stylesheet" type="text/css" href="https://cdn.gitcdn.link/cdn/angular/bower-material/v1.0.6/angular-material.css">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+  <link rel="stylesheet" type="text/css" href="https://material.angularjs.org/1.0.6/docs.css">
+  <link rel="stylesheet" type="text/css" href="../lib/bootstrap/bootstrap.min.css">
+  <link rel="stylesheet" type="text/css" href="../lib/leaflet/leaflet.css">
+  <link rel="stylesheet" type="text/css" href="../lib/leaflet-label.css">
+  <link rel="stylesheet" type="text/css" href="../css/gtfs.css">
+  <link rel="stylesheet" type="text/css" href="../css/slider.css">
+  <link rel="stylesheet" type="text/css" href="../lib/material-design-lite/material.min.css">
+
+</head>
+
+<body ng-cloack layout="column" ng-controller="GlobalCtrl">
+
+  <!-- Tabs -->
+  <div ng-cloack="" ng-show="appdata.dbfname" class="tabsdemoDynamicHeight flexContainer flexColumnContainer" ng-controller="TabCtrl">
+
+    <md-content class="flexFixed">
+      <md-tabs md-dynamic-height="" md-border-bottom="">
+
+        <md-tab label="ANIMATION" mdtabclick>
+          <div ng-show="appdata.tabToShow=='ANIMATION'" ng-controller="AnimParamsCtrl">
+            <div id="animTabContent" layout="column" layout-align="space-around stretch">
+
+              <div class="flexContainer flexRowContainer flexAlignBaseline flexSpaceAround">
+
+                <md-button ng-disabled="!appdata.data_loadable" class="md-raised md-primary flexFixed" ng-click="load_anim_data()">LOAD ANIMATION</md-button>
+
+                <md-button ng-class="{'md-warn': !appdata.anim_visible}" class="md-raised flexFixed" ng-click="toggle_anim_visibility()">{{appdata.anim_visible ? "HIDE ANIMATION" : "SHOW ANIMATION"}}</md-button>
+
+                <div class="md-body-1 flexGrow flexContainer flexRowContainer flexAlignCenter">
+                  Simulation speed
+                  <md-slider min="{{appdata.sim_speed_min}}" max="{{appdata.sim_speed_max}}" ng-model="appdata.sim_speed" id="speed-slider" class="md-primary flexGrow" aria-label="speed-slider"></md-slider>
+                  <input class="flexFixed" type="number" ng-model="appdata.sim_speed">
+                </div>
+
+                <!-- Tail length -->
+                <div class="md-body-1 flexGrow flexContainer flexRowContainer flexAlignCenter">
+                  Tail length
+                  <md-slider min="{{appdata.tail_length_min}}" max="{{appdata.tail_length_max}}" ng-model="appdata.tail_length" id="tail-length-slider" class="md-primary flexGrow" aria-label="tail-length"></md-slider>
+                  <input class="flexFixed" type="number" ng-model="appdata.tail_length">
+                </div>
+
+              </div>
+
+              <div class="flexContainer flexRowContainer flexAlignCenter flexSpaceAround" ng-show="appdata.anim_data_ready">
+                <!-- Sim time slider -->
+                <span class="md-body-1 flexFixed">Simulation Time</span>
+                <i ng-click="toggle_play()" class="material-icons flexFixed">
+                  {{appdata.anim_stopped ? "play_arrow" : "pause" }}
+                </i>
+                <input type="range" flex="80" min="{{appdata.sim_time_min}}" max="{{appdata.sim_time_max}}" ng-model="appdata.sim_time" id="sim-time-slider" aria-label="sim-time-slider" ng-disabled="!appdata.anim_data_ready" stringtonumber class="flexGrow" ng-change="step_anim()">
+                  <!-- md-slider has weird updating problems with angular -> not in use
+                   <md-slider flex="80" min="{{appdata.sim_time_min}}" max="{{appdata.sim_time_max}}" ng-model="appdata.sim_time" id="sim-time-slider" class="md-primary noanim" aria-label="sim-time-slider" ng-disabled="!appdata.anim_data_ready"></md-slider> -->
+                <input class="flexFixed" type="number" ng-model="appdata.sim_time">
+              </div>
+
+            </div>
+          </div>
+        </md-tab> <!-- End Animation tab -->
+
+        <md-tab label="STATS" mdtabclick>
+          <div ng-show="appdata.tabToShow=='STATS'" ng-controller="StatsController">
+            <md-button class="md-raised md-primary flexFixed" ng-click="load_stats()">LOAD STATS</md-button>
+            <div class="flexContainer flexRowContainer flexSpaceAround">
+              <table>
+              <tr id="stats" ng-repeat="el in appdata.stats | orderBy:'key'" ng-if="$index < appdata.stats.length/2">
+              <td> {{el.key}} </td>
+              <td> {{el.value}} </td>
+              </tr>
+              </table>
+
+              <table>
+              <tr id="stats" ng-repeat="el in appdata.stats | orderBy:'key'" ng-if="$index >= appdata.stats.length/2">
+              <td> {{el.key}} </td>
+              <td> {{el.value}} </td>
+              </tr>
+              </table>
+            </div>
+          </div>
+        </md-tab>
+
+        <md-tab label="PLOTS" mdtabclick>
+          <div ng-show="appdata.tabToShow=='PLOTS'" ng-controller="PlotsController">
+            <md-button class="md-raised md-primary flexFixed" ng-click="load_plots()">LOAD PLOTS</md-button>
+            <div id="tripsperdayplot"></div>
+            <div id="someotherplot"></div>
+          </div>
+        </md-tab>
+
+        <md-tab label="STOPS" mdtabclick>
+          <div ng-show="appdata.tabToShow=='STOPS'" ng-controller="StopParamsCtrl" class="flexContainer flexRowContainer flexAlignBaseline">
+
+            <md-button class="md-raised md-primary flexFixed" ng-click="load_stop_data()">LOAD STOP DATA</md-button>
+            <md-button ng-class="{'md-warn': !appdata.show_stop_data}" class="md-raised flexFixed" ng-click="show_stop_data()">{{appdata.show_stop_data ? "HIDE STOP DATA" : "SHOW STOP DATA" }}</md-button>
+            <div class="flexFixed" layout="row" layout-align="space-around center">
+              <span class="md-body-1" >Color and size by frequency
+              <md-checkbox ng-model="appdata.color_and_size_stops_by_count" aria-label="checkbox color by frequency" ng-change="colorStopsToggled()">{{appdata.color_and_size_stops_by_count ? "Yes" : "No"}}
+              </md-checkbox>
+              </span>
+            </div>
+
+          </div>
+        </md-tab>
+
+        <md-tab label="SEGMENTS" mdtabclick>
+          <div ng-show="appdata.tabToShow=='SEGMENTS'" ng-controller="SegmentParamsController" class="flexContainer flexRowContainer flexAlignBaseline">
+
+            <md-button class="md-raised md-primary flexFixed" ng-click="load_segment_data()">LOAD SEGMENT DATA
+            </md-button>
+            <md-button ng-class="{'md-warn': !appdata.show_segment_data}" class="md-raised flexFixed" ng-click="toggle_segment_data()">{{appdata.show_segment_data ? "HIDE SEGMENT DATA" : "SHOW SEGMENT DATA" }}
+            </md-button>
+
+            <div class="flexFixed" layout="row" layout-align="space-around center">
+              <span flex class="md-body-1 flexFixed" >Color by frequency?
+                <md-checkbox ng-model="appdata.color_and_size_segments_by_count" aria-label="checkbox color by frequency" class="flexFixed" ng-change="redraw_segments()">
+                {{appdata.color_and_size_segments_by_count ? "Yes" : "No"}}
+                </md-checkbox>
+              </span>
+            </div>
+          </div>
+        </md-tab>
+
+
+        <md-tab label="ROUTES" mdtabclick>
+          <div ng-show="appdata.tabToShow=='ROUTES'" ng-controller="RouteParamsController" class="flexContainer flexRowContainer flexAlignBaseline">
+
+            <md-button class="md-raised md-primary flexFixed" ng-click="load_route_data()">LOAD ROUTE DATA</md-button>
+            <md-button ng-class="{'md-warn': !appdata.show_route_data}" class="md-raised flexFixed" ng-click="toggle_route_data()">{{appdata.show_route_data ? "HIDE ROUTE DATA" : "SHOW ROUTE DATA" }}</md-button>
+
+            <span flex class="md-body-1 flexFixed elpad"> Color by route?
+              <md-checkbox ng-model="appdata.color_by_route" aria-label="checkbox color by line" class="flexFixed" ng-change="redraw_routes()">{{appdata.color_by_route ? "Yes " : "No "}}
+              </md-checkbox>
+            </span>
+
+            <span flex class="md-body-1 flexFixed elpad"> Color by agency?
+              <md-checkbox ng-model="appdata.color_by_agency" aria-label="checkbox color by agency" class="flexFixed" ng-change="redraw_routes()">{{appdata.color_by_agency ? "Yes " : "No "}}
+              </md-checkbox>
+            </span>
+
+            <span flex class="md-body-1 flexFixed elpad">Add offsets to routes?
+              <md-checkbox ng-model="appdata.add_offset_to_routes" aria-label="checkbox add offset to routes" class="flexFixed" ng-change="redraw_routes()">{{appdata.add_offset_to_routes ? "Yes " : "No "}}
+              </md-checkbox>
+            </span>
+
+          </div>
+        </md-tab>
+
+        <md-tab label="SPREADING" mdtabclick>
+          <div ng-show="appdata.tabToShow=='SPREADING'" ng-controller="SpreadingParamsCtrl">
+            <div id="spreadingTabContent" layout="column" layout-align="space-around stretch">
+              <div class="flexContainer flexRowContainer flexAlignBaseline flexSpaceAround">
+                <md-button ng-disabled="!(appdata.data_loadable && appdata.spreading_lat!=null && appdata.spreading_lon!=null)" class="md-raised md-primary flexFixed" ng-click="load_spreading_data()">LOAD SPREADING</md-button>
+
+                <md-button ng-class="{'md-warn': !appdata.spreading_visible}" class="md-raised flexFixed" ng-click="toggle_spreading_visibility()">{{appdata.spreading_visible ? "HIDE SPREADING ANIMATION" : "SHOW SPREADING ANIMATION"}}</md-button>
+
+                <div class="md-body-1 flexGrow flexContainer flexRowContainer flexAlignCenter">
+                  Simulation speed
+                  <md-slider min="{{appdata.spreading_sim_speed_min}}" max="{{appdata.spreading_sim_speed_max}}" ng-model="appdata.spreading_sim_speed" id="spreading-speed-slider" class="md-primary flexGrow" aria-label="speed-slider"></md-slider>
+                  <input class="flexFixed" type="number" ng-model="appdata.spreading_sim_speed">
+                </div>
+
+              </div>
+
+              <div class="flexContainer flexRowContainer flexAlignCenter flexSpaceAround" ng-show="appdata.spreading_data_ready">
+                <!-- Sim time slider -->
+                <span class="md-body-1 flexFixed">Simulation Time</span>
+                <i ng-click="toggle_play()" class="material-icons flexFixed">
+                  {{appdata.spreading_stopped ? "play_arrow" : "pause" }}
+                </i>
+                <input type="range" flex="80" min="{{appdata.spreading_sim_time_min}}" max="{{appdata.spreading_sim_time_max}}" ng-model="appdata.spreading_sim_time" id="spreading-sim-time-slider" aria-label="spreading-sim-time-slider" ng-disabled="!appdata.spreading_data_ready" stringtonumber class="flexGrow" ng-change="step_spreading()">
+                <!-- md-slider has weird updating problems with angular -> not in use
+                 <md-slider flex="80" min="{{appdata.sim_time_min}}" max="{{appdata.sim_time_max}}" ng-model="appdata.sim_time" id="sim-time-slider" class="md-primary noanim" aria-label="sim-time-slider" ng-disabled="!appdata.anim_data_ready"></md-slider> -->
+                <input class="flexFixed" type="number" ng-model="appdata.spreading_sim_time">
+              </div>
+
+            </div>
+          </div>
+        </md-tab> <!-- End Animation tab -->
+
+
+        <md-tab label="ABOUT" mdtabclick>
+          <div ng-show="appdata.tabToShow=='ABOUT'">
+            <h1> ABOUT </h1>
+          </div>
+        </md-tab>
+
+      </md-tabs>
+    </md-content>
+  </div>
+
+
+
+
+  <div id="mapContainer" class="flexGrow flexContainer flexColumn" ng-controller="MapCtrl">
+
+    <div id="loading">
+      <md-progress-circular ng-show="appdata.loading" class="md-warn" md-diameter="250px" md-mode="indeterminate"></md-progress-circular>
+    </div>
+
+    <div layout id="map" class="flexGrow"></div>
+
+    <div id="siminfo" ng-show="appdata.anim_visible && appdata.anim_data_ready">
+      <p>{{appdata.sim_time*1000 | date:'yyyy-MM-dd HH:mm:ss Z' : appdata.timezones[appdata.dbfname]}} </p>
+      <p>{{appdata.n_vehicles}} vehicles</p>
+      <div ng-repeat="(key, value) in appdata.n_vehicles_by_type">
+        <td> {{key}} </td> <td> {{value}} </td>
+      </div>
+    </div>
+
+    <div id="mapOverLayButtons">
+      <md-button id="dataselShowBtn" class="md-raised" ng-show="!appdata.show_data_select" ng-click="appdata.show_data_select = !appdata.show_data_select">CHANGE DATA SET</md-button>
+      <md-button id="footerShowBtn" class="md-raised" ng-show="!appdata.show_footer" ng-click="appdata.toggleFooter()">SHOW OPTIONS</md-button>
+    </div>
+
+
+  </div>
+
+
+  <md-footer layout id="footer" ng-show="appdata.show_footer && appdata.dbfname" ng-controller='DataSelectionCtrl' class="flexFixed flexRowContainer flexSpaceAround flexAlignCenter md-padding">
+
+    <div class="flexFixed flexContainer flexColumnContainer flexStretch">
+      <md-button class="md-raised flexGrow" ng-click="appdata.toggleFooter()">HIDE OPTIONS</md-button>
+    </div>
+
+    <!-- Data start time slider -->
+    <div class="flexGrow flexColumnContainer flexSpaceAround flexAlignCenter">
+      <span class="flexFixed">Data start time: {{appdata.data_start*1000 | date:'yyyy-MM-dd HH:mm:ss Z' : appdata.timezones[appdata.dbfname]}}</span>
+      <div class="flexContainer flexRowContainer flexFixed">
+        <md-slider min="{{appdata.data_start_min}}" max="{{appdata.data_start_max}}" ng-model="appdata.data_start" step="300" id="data-start-slider" class="md-primary flexGrow" aria-label="sim-time-slider"></md-slider>
+      </div>
+      <span> Start time in UTC seconds: <input class="flexFixed" type="number" ng-model="appdata.data_start">
+    </div>
+
+    <!-- Data duration -->
+    <div class="flexGrow flexContainer flexColumnContainer flexSpaceAround flexAlignCenter">
+      <span class="md-body-1 flexFixed">Data duration:</span>
+      <md-select class="flexFixed" ng-model="appdata.duration" aria-label="database select">
+        <md-option ng-repeat="d in appdata.durations" value="{{d}}">{{d / 60}} min
+        </md-option>
+      </md-select>
+    </div>
+
+    <!-- Shape checkbox -->
+    <div class="flexGrow flexContainer flexColumnContainer flexSpaceAround flexAlignCenter">
+      <span title="Note: Not all datasets have shape data available" class="flexFixed" >Use shapes? </span>
+      <br>
+      <md-checkbox class="flexFixed" id="shape_checkbox" ng-model="appdata.use_shapes" aria-label="checkbox shapes" >{{appdata.use_shapes? "Yes" : "No"}}
+      </md-checkbox>
+      <br>
+      <span>Note: Not all datasets have shape data available.</span>
+    </div>
+
+
+
+  </md-footer>
+
+  <md-divider></md-divider>
+
+
+  <md-footer layout id="footer" ng-show="appdata.show_data_select" ng-controller='DataSelectionCtrl' class="flexFixed flexRowContainer flexSpaceAround flexAlignCenter md-padding">
+
+    <md-button id="dataselShowBtn" class="md-raised md-warn" ng-show="appdata.dbfname" ng-click="appdata.show_data_select = !appdata.show_data_select">KEEP CURRENT</md-button>
+
+    <div class="flexFixed">
+    <span> Current database: </span> <br>
+    <span> <b> {{appdata.dbfname ? appdata.dbfname : "No DB selected"}} </b></span>
+    </div>
+
+    <div class="flexFixed flexContainer flexColumnContainer flexSpaceAround flexAlignCenter">
+      <span class="md-body-1 flexFixed">Select database:</span>
+      <md-select ng-model="selected_dbfname" aria-label="database select">
+        <md-option ng-repeat="db in appdata.dbfnames" value="{{db}}">{{db}}
+        </md-option>
+      </md-select>
+    </div>
+
+    <div class="flexFixed flexContainer flexColumnContainer flexStretch md-primary">
+      <md-button class="md-raised flexGrow md-primary" ng-click="dbfnameupdate()" ng-disabled="appdata.dbfname == selected_dbfname">
+      SET DATABASE
+      </md-button>
+    </div>
+
+  </md-footer>
+
+
+
+
+
+
+  </body>
+
+
+</html>
