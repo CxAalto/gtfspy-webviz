@@ -27,14 +27,14 @@ LIB_ASSETS:=$(subst $(ASSETS)/lib/, $(BUILD)/lib/, $(LIB_ASSETS))
 #ALLA=$(shell find assets/ \( \( -name html -o -name coffee \) -prune \) -o ! -name '*~' -type f)
 #ALL=$(subst $(ASSETS)/, $(BUILD)/, $(ALLA))
 
-JS_ASSETS:=$(shell find $(ASSETS)/js0/ ! -type d)
-JS_ASSETS:=$(subst $(ASSETS)/js0/, $(BUILD)/js0/, $(JS_ASSETS))
+# JS_ASSETS:=$(shell find $(ASSETS)/js/ ! -type d)
+# JS_ASSETS:=$(subst $(ASSETS)/js/, $(BUILD)/js/, $(JS_ASSETS))
 
 COFFEE_ASSETS:=$(shell find $(ASSETS)/coffee/ ! -type d -name '*.coffee')
 COFFEE_ASSETS:=$(subst $(ASSETS)/coffee/, $(BUILD)/js/, $(COFFEE_ASSETS))
 COFFEE_ASSETS:=$(subst .coffee,.js, $(COFFEE_ASSETS))
 
-default: html css lib js coffee
+default: html css lib coffee
 # HTML assets
 html: $(HTML_ASSETS)
 build/%: assets/html/%
@@ -53,10 +53,10 @@ build/css/%: assets/css/%
 	$(CP) $< $@
 
 # Pure JS assets.
-js: $(JS_ASSETS) #copyJS
-build/js/%: assets/js/%
-	@mkdir -p $(BUILD)/js/
-	$(CP) $(ASSETS)/js/$* $@
+# js: $(JS_ASSETS) #copyJS
+# build/js/%: assets/js/%
+# 	@mkdir -p $(BUILD)/js/
+# 	$(CP) $(ASSETS)/js/$* $@
 
 # Coffee assets
 coffee: $(COFFEE_ASSETS) #compileCoffees
@@ -67,7 +67,7 @@ build/js/%.js: assets/coffee/%.coffee
 
 
 # This was the old stuff that built everything at once every time it was run.
-old_default: mkdirs copyHTML copyJS copyCSS copyLib compileCoffees
+build: mkdirs copyHTML copyCSS copyLib compileCoffees
 
 mkdirs:
 #	mkdir -p $(BUILD)/html/

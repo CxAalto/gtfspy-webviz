@@ -8,7 +8,7 @@ class GtfsService
       @pp = ""
     else
       # i.e. if on the production server:
-      @pp = "/transit/"
+      @pp = "/webviz/"
 
   fetch_databases: =>
     @$log.debug "fetching list of databases, and timezones"
