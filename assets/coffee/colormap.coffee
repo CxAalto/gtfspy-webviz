@@ -3,8 +3,8 @@ class window.ColorMap
   constructor: (colors, @origValues, @ndivs, @full_interpolate) ->
     # values should be in increasing order
     # colors
-    @n = colors.lenght
-    if @n is not @origValues.lenght
+    @n = colors.length
+    if @n is not @origValues.length
       throw "The colors and values should be of same length"
     @origColors = ($.Color(color) for color in colors)
 

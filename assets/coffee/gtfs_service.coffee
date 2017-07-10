@@ -39,7 +39,7 @@ class GtfsService
             # set start, end and center of time span:
             @$rootScope.appdata.data_start_min=json['start_time_ut']
             @$rootScope.appdata.data_start_max=json['end_time_ut']
-            @$rootScope.appdata.data_start=0.5*(json['start_time_ut']+json['end_time_ut'])
+            @$rootScope.appdata.data_start=Number(json['start_time_ut']) + 8 * 3600
             # set map bounds according to LatLngBounds format
             @$rootScope.appdata.data_map_bounds = [[json['lat_min'], json['lon_min']],[json['lat_max'], json['lon_max']]]
             @$rootScope.$broadcast('newdbselected')

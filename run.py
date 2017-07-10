@@ -1,7 +1,5 @@
 import json
 import os
-import sys
-import time
 from sqlite3 import OperationalError
 from glob import glob
 
@@ -97,9 +95,11 @@ def find_dbfnames():
         except OperationalError as e:
             print("database " + dbf + " is not available due to: \n" + e.message)
 
-    data = {'dbfnames': valid_dbfnames, 'timezones': timezone_dict}
+    data = {'dbfnames': valid_dbfnames,
+            'timezones': timezone_dict}
     dbfname_cache = json.dumps(data)
     return dbfnames, commonprefix, dbfname_cache
+
 # Run finder function to set the needed variables.
 dbfnames, commonprefix, dbfname_cache = find_dbfnames()
 
@@ -129,7 +129,6 @@ def available_gtfs_dbs():
     Returns available databases and the timezone for each database.
     These results are cached after the first request
     """
-    print("cache", dbfname_cache)
     return dbfname_cache
 
     # data = {'hsl-2015-04-24.sqlite':
