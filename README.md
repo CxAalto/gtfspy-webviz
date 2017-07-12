@@ -24,7 +24,7 @@ Change the DB_DIR variable in the settings.py file.
 License
 -------
 All files under directories src/js src/html src/css are licensed under MIT license.
-Javascript libraries under src/lib are licensed under.
+For the licenses of the Javascript libraries under src/lib, please see their source code.
 
 To run
 ------
