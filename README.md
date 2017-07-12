@@ -1,3 +1,8 @@
+
+![Screenshot](docs/sample_image.png?raw=true "Screenshot")
+
+
+
 Prerequisites
 -------------
 - Python 3.5. 
