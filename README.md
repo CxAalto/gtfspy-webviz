@@ -47,4 +47,4 @@ The development of this visualization tool has benefited from the support by Aca
 
 See also
 --------
-(gtfspy Python package for analyzing public transport networks)[https://github.com/CxAalto/gtfspy]
+[gtfspy Python package for analyzing public transport networks](https://github.com/CxAalto/gtfspy)
