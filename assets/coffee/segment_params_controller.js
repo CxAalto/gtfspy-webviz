@@ -1,20 +1,35 @@
-class SegmentParamsController
+/*
+ * decaffeinate suggestions:
+ * DS102: Remove unnecessary code created because of implicit returns
+ * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
+ */
+class SegmentParamsController {
 
-  constructor: (@$scope, @$rootScope, @$log, @GtfsService) ->
+  constructor($scope, $rootScope, $log, GtfsService) {
 
-    @$scope.load_segment_data = () =>
-      @$log.debug "fetch segment data"
-      @$rootScope.$broadcast("loadsegmentdata")
+    this.$scope = $scope;
+    this.$rootScope = $rootScope;
+    this.$log = $log;
+    this.GtfsService = GtfsService;
+    this.$scope.load_segment_data = () => {
+      this.$log.debug("fetch segment data");
+      return this.$rootScope.$broadcast("loadsegmentdata");
+    };
 
-    @$scope.toggle_segment_data = () =>
-      @$log.debug "toggle segment data"
-      @$rootScope.appdata.show_segment_data = !@$rootScope.appdata.show_segment_data
-      @$rootScope.$broadcast("togglesegmentdata")
+    this.$scope.toggle_segment_data = () => {
+      this.$log.debug("toggle segment data");
+      this.$rootScope.appdata.show_segment_data = !this.$rootScope.appdata.show_segment_data;
+      return this.$rootScope.$broadcast("togglesegmentdata");
+    };
 
-    @$scope.redraw_segments = () =>
-      if @$rootScope.appdata.show_segment_data
-        @$log.debug  "redraw segments"
-        @$rootScope.$broadcast("redrawsegments")
+    this.$scope.redraw_segments = () => {
+      if (this.$rootScope.appdata.show_segment_data) {
+        this.$log.debug("redraw segments");
+        return this.$rootScope.$broadcast("redrawsegments");
+      }
+    };
+  }
+}
 
 
-controllersModule.controller('SegmentParamsController', ['$scope', '$rootScope', '$log', 'GtfsService', SegmentParamsController])
+controllersModule.controller('SegmentParamsController', ['$scope', '$rootScope', '$log', 'GtfsService', SegmentParamsController]);

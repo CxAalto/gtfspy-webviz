@@ -1,18 +1,32 @@
-class RouteParamsController
+/*
+ * decaffeinate suggestions:
+ * DS102: Remove unnecessary code created because of implicit returns
+ * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
+ */
+class RouteParamsController {
 
-  constructor: (@$scope, @$rootScope, @$log, @GtfsService) ->
+  constructor($scope, $rootScope, $log, GtfsService) {
 
-    @$scope.load_route_data = () =>
-      @$log.debug "fetch route data"
-      @$rootScope.$broadcast("loadroutedata")
+    this.$scope = $scope;
+    this.$rootScope = $rootScope;
+    this.$log = $log;
+    this.GtfsService = GtfsService;
+    this.$scope.load_route_data = () => {
+      this.$log.debug("fetch route data");
+      return this.$rootScope.$broadcast("loadroutedata");
+    };
 
-    @$scope.toggle_route_data = () =>
-      @$log.debug "toggle route data"
-      @$rootScope.appdata.show_route_data = !@$rootScope.appdata.show_route_data
-      @$rootScope.$broadcast("toggleroutedata")
+    this.$scope.toggle_route_data = () => {
+      this.$log.debug("toggle route data");
+      this.$rootScope.appdata.show_route_data = !this.$rootScope.appdata.show_route_data;
+      return this.$rootScope.$broadcast("toggleroutedata");
+    };
 
-    @$scope.redraw_routes = () =>
-      @$rootScope.$broadcast("redrawroutes")
+    this.$scope.redraw_routes = () => {
+      return this.$rootScope.$broadcast("redrawroutes");
+    };
+  }
+}
 
 
-controllersModule.controller('RouteParamsController', ['$scope', '$rootScope', '$log', 'GtfsService', RouteParamsController])
+controllersModule.controller('RouteParamsController', ['$scope', '$rootScope', '$log', 'GtfsService', RouteParamsController]);

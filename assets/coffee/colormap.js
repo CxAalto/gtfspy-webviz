@@ -1,108 +1,129 @@
-class window.ColorMap
+/*
+ * decaffeinate suggestions:
+ * DS101: Remove unnecessary use of Array.from
+ * DS102: Remove unnecessary code created because of implicit returns
+ * DS201: Simplify complex destructure assignments
+ * DS202: Simplify dynamic range loops
+ * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
+ */
+window.ColorMap = class ColorMap {
 
-  constructor: (colors, @origValues, @ndivs, @full_interpolate) ->
-    # values should be in increasing order
-    # colors
-    @n = colors.length
-    if @n is not @origValues.length
-      throw "The colors and values should be of same length"
-    @origColors = ($.Color(color) for color in colors)
+  constructor(colors, origValues, ndivs, full_interpolate) {
+    // values should be in increasing order
+    // colors
+    this.origValues = origValues;
+    this.ndivs = ndivs;
+    this.full_interpolate = full_interpolate;
+    this.n = colors.length;
+    if (this.n === !this.origValues.length) {
+      throw "The colors and values should be of same length";
+    }
+    this.origColors = (Array.from(colors).map((color) => $.Color(color)));
 
-    [@min, ..., @max] = @origValues
-    [@firstColor, ..., @lastColor] = @origColors
-    @span = @max - @min
-    @divColorVals = []
-    @divColors = []
-    step = @span / (@ndivs-1)
-    for i in [0..(@ndivs-1)]
-      val = @min+i*step
-      @divColorVals.push(val)
+    this.min = this.origValues[0], this.max = this.origValues[this.origValues.length - 1];
+    this.firstColor = this.origColors[0], this.lastColor = this.origColors[this.origColors.length - 1];
+    this.span = this.max - this.min;
+    this.divColorVals = [];
+    this.divColors = [];
+    const step = this.span / (this.ndivs-1);
+    for (let i = 0, end = this.ndivs-1, asc = 0 <= end; asc ? i <= end : i >= end; asc ? i++ : i--) {
+      var col;
+      var val = this.min+(i*step);
+      this.divColorVals.push(val);
 
-      index = _.findIndex(@origValues, (origVal) ->
-        return origVal > val
-        )
+      const index = _.findIndex(this.origValues, origVal => origVal > val);
 
-      if index is -1
-        col = @copy_color(@lastColor)
-      else
-        val_span = @origValues[index]-@origValues[index-1]
-        val_frac = (@origValues[index]-val) / val_span
-        col = @origColors[index-1].transition(@origColors[index], 1-val_frac)
+      if (index === -1) {
+        col = this.copy_color(this.lastColor);
+      } else {
+        const val_span = this.origValues[index]-this.origValues[index-1];
+        const val_frac = (this.origValues[index]-val) / val_span;
+        col = this.origColors[index-1].transition(this.origColors[index], 1-val_frac);
+      }
 
-      @divColors.push(col)
+      this.divColors.push(col);
+    }
+  }
 
-  copy_color: (color) ->
-    return $.Color(color.toHexString())
+  copy_color(color) {
+    return $.Color(color.toHexString());
+  }
 
-  get_color: (value) ->
-    ### This could be optimized more!###
-    index = _.findIndex(@divColorVals, (dcv) ->
-      return dcv > value
-      )
-    if index is -1
-      return @lastColor.toHexString()
-    else
-      return @divColors[index].toHexString()
+  get_color(value) {
+    /* This could be optimized more!*/
+    const index = _.findIndex(this.divColorVals, dcv => dcv > value);
+    if (index === -1) {
+      return this.lastColor.toHexString();
+    } else {
+      return this.divColors[index].toHexString();
+    }
+  }
 
-  show_map: (svgdiv, ticks=null, ticklabels=null) ->
-    height = 100
-    svg = d3.select("#"+svgdiv).append("svg")
+  show_map(svgdiv, ticks=null, ticklabels=null) {
+    const height = 100;
+    const svg = d3.select(`#${svgdiv}`).append("svg")
                                     .attr("width", "100%")
-                                    .attr("height", height)
+                                    .attr("height", height);
 
-    x_fracs = []
+    let x_fracs = [];
 
-    width_used = 95
-    height_used = 80
-    width_interval = width_used / (@divColorVals.length)
-    x_fracs = (2.5+width_interval*i for i in [0..(@divColors.length-1)])
+    const width_used = 95;
+    const height_used = 80;
+    const width_interval = width_used / (this.divColorVals.length);
+    x_fracs = (__range__(0, (this.divColors.length-1), true).map((i) => 2.5+(width_interval*i)));
 
-    data = _.zip(@divColors, @divColorVals, x_fracs)
+    let data = _.zip(this.divColors, this.divColorVals, x_fracs);
     svg.selectAll('rect')
       .data(data)
       .enter()
       .append('rect')
-      .attr('fill', (d) ->
-            d[0].toHexString()
-            )
-      .attr('stroke', (d) ->
-            d[0].toHexString()
-            )
-      .attr('x', (d) ->
-            return d[2]+"%")
+      .attr('fill', d => d[0].toHexString())
+      .attr('stroke', d => d[0].toHexString())
+      .attr('x', d => d[2]+"%")
       .attr('width', width_interval+"%")
-      .attr('height', height_used)
+      .attr('height', height_used);
 
-    ###
+    /*
     Set up ticks:
-    ###
+    */
 
-    ### use orig values as ticks for now ###
-    if ticks is null
-      ticks = @origValues
-    if ticklabels is null
-      ticklabels = ticks
+    /* use orig values as ticks for now */
+    if (ticks === null) {
+      ticks = this.origValues;
+    }
+    if (ticklabels === null) {
+      ticklabels = ticks;
+    }
 
 
-    offset = (100-width_used) / 2
-    tick_fracs = (offset+width_used*(val-@min) / (@span) for val in ticks)
+    const offset = (100-width_used) / 2;
+    const tick_fracs = (Array.from(ticks).map((val) => offset+((width_used*(val-this.min)) / (this.span))));
 
-    data = _.zip(ticklabels, tick_fracs)
+    data = _.zip(ticklabels, tick_fracs);
 
     svg.selectAll('text')
       .data(data)
       .enter()
       .append('text')
-      .attr("x", (d) ->
-            d[1]+"%")
+      .attr("x", d => d[1]+"%")
       .attr("text-anchor", "middle")
       .attr("y", (height+height_used+12) / 2)
-      .text( (d) ->
-            d[0]
-            )
+      .text( d => d[0])
       .attr("font-family", "sans-serif")
       .attr("font-size", 12)
-      .attr("fill", "black")
+      .attr("fill", "black");
 
 
-    return false
+    return false;
+  }
+};
+
+function __range__(left, right, inclusive) {
+  let range = [];
+  let ascending = left < right;
+  let end = !inclusive ? right : ascending ? right + 1 : right - 1;
+  for (let i = left; ascending ? i < end : i > end; ascending ? i++ : i--) {
+    range.push(i);
+  }
+  return range;
+}

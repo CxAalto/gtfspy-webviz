@@ -1,27 +1,42 @@
-class StatsController
+/*
+ * decaffeinate suggestions:
+ * DS102: Remove unnecessary code created because of implicit returns
+ * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
+ */
+class StatsController {
 
-  constructor: (@$scope, @$rootScope, @$log, @GtfsService) ->
+  constructor($scope, $rootScope, $log, GtfsService) {
 
-    @$scope.$on("newdbselected", @clearstats)
+    this.$scope = $scope;
+    this.$rootScope = $rootScope;
+    this.$log = $log;
+    this.GtfsService = GtfsService;
+    this.$scope.$on("newdbselected", this.clearstats);
 
-    clearstats = () =>
-      @$rootScope.appdata.stats = {}
-
-
-    @$scope.load_stats = () =>
-      @$log.debug "fetch route data"
-      rs = @$rootScope
-      promise = @GtfsService.fetch_stats()
-      promise.then( (json)->
-          stats = []
-          for key, value of json
-            el = {}
-            el.key = key
-            el.value = value
-            stats.push(el)
-          rs.appdata.stats = stats
-        )
+    const clearstats = () => {
+      return this.$rootScope.appdata.stats = {};
+    };
 
 
+    this.$scope.load_stats = () => {
+      this.$log.debug("fetch route data");
+      const rs = this.$rootScope;
+      const promise = this.GtfsService.fetch_stats();
+      return promise.then( function(json){
+          const stats = [];
+          for (let key in json) {
+            const value = json[key];
+            const el = {};
+            el.key = key;
+            el.value = value;
+            stats.push(el);
+          }
+          return rs.appdata.stats = stats;
+        });
+    };
+  }
+}
 
-controllersModule.controller('StatsController', ['$scope', '$rootScope', '$log', 'GtfsService', StatsController])
+
+
+controllersModule.controller('StatsController', ['$scope', '$rootScope', '$log', 'GtfsService', StatsController]);

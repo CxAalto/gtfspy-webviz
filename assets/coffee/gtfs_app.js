@@ -1,32 +1,34 @@
+/*
+ * decaffeinate suggestions:
+ * DS102: Remove unnecessary code created because of implicit returns
+ * DS208: Avoid top-level this
+ * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
+ */
 
-dependencies = [
+const dependencies = [
     'gtfsApp.controllers',
     'gtfsApp.services',
     'ngMaterial',
     'ngMessages',
     'material.svgAssetsCache'
-]
+];
 
-@app = angular.module('gtfsApp', dependencies)
+this.app = angular.module('gtfsApp', dependencies);
 
-@controllersModule = angular.module('gtfsApp.controllers', [])
-@servicesModule = angular.module('gtfsApp.services', [])
+this.controllersModule = angular.module('gtfsApp.controllers', []);
+this.servicesModule = angular.module('gtfsApp.services', []);
 
-@app.run(['GtfsService',
-         (GtfsService) ->
-            GtfsService.fetch_databases()
-        ])
+this.app.run(['GtfsService',
+         GtfsService => GtfsService.fetch_databases()
+        ]);
 
-@app.directive('stringtonumber', () ->
-    return {
+this.app.directive('stringtonumber', () =>
+    ({
         require: 'ngModel',
-        link: (scope, element, attrs, ngModel) ->
-            ngModel.$parsers.push( (value) ->
-                return parseFloat(value)
-            )
-            ngModel.$formatters.push( (value) ->
-                return '' + value
-            )
-    }
-)
+        link(scope, element, attrs, ngModel) {
+            ngModel.$parsers.push( value => parseFloat(value));
+            return ngModel.$formatters.push( value => `${value}`);
+        }
+    })
+);
 

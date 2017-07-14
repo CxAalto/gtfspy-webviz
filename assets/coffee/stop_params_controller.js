@@ -1,18 +1,32 @@
-class StopParamsCtrl
+/*
+ * decaffeinate suggestions:
+ * DS102: Remove unnecessary code created because of implicit returns
+ * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
+ */
+class StopParamsCtrl {
 
-  constructor: (@$scope, @$rootScope, @GtfsService) ->
+  constructor($scope, $rootScope, GtfsService) {
 
-    @$scope.load_stop_data = () =>
-      @$rootScope.$broadcast("loadstopdata")
+    this.$scope = $scope;
+    this.$rootScope = $rootScope;
+    this.GtfsService = GtfsService;
+    this.$scope.load_stop_data = () => {
+      return this.$rootScope.$broadcast("loadstopdata");
+    };
 
-    @$scope.show_stop_data = () =>
-      @$rootScope.appdata.show_stop_data = !@$rootScope.appdata.show_stop_data
-      @$rootScope.$broadcast("togglestopdata")
+    this.$scope.show_stop_data = () => {
+      this.$rootScope.appdata.show_stop_data = !this.$rootScope.appdata.show_stop_data;
+      return this.$rootScope.$broadcast("togglestopdata");
+    };
 
-    @$scope.colorStopsToggled = () =>
-      if @$rootScope.appdata.show_stop_data
-        @$rootScope.$broadcast("redrawstops")
+    this.$scope.colorStopsToggled = () => {
+      if (this.$rootScope.appdata.show_stop_data) {
+        return this.$rootScope.$broadcast("redrawstops");
+      }
+    };
+  }
+}
 
 
 
-controllersModule.controller('StopParamsCtrl', ['$scope', '$rootScope', 'GtfsService', StopParamsCtrl])
+controllersModule.controller('StopParamsCtrl', ['$scope', '$rootScope', 'GtfsService', StopParamsCtrl]);
