@@ -1,3 +1,10 @@
+import angular from 'angular';
+require('leaflet');
+require("../utils/trip");
+import {CONTROLLERS_MODULE_NAME} from "../const";
+
+const CONTROLLER_NAME = "MapCtrl";
+
 // TODO: This file was created by bulk-decaffeinate.
 // Sanity-check the conversion and remove this comment.
 /*
@@ -9,7 +16,9 @@
  * DS207: Consider shorter variations of null checks
  * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
  */
+
 class MapCtrl {
+
     constructor($log, $scope, $rootScope, $timeout, GtfsService) {
         this.set_spreading_latlng = this.set_spreading_latlng.bind(this);
         this.add_spreading_origin = this.add_spreading_origin.bind(this);
@@ -773,6 +782,6 @@ class MapCtrl {
     }
   }
 
-
-
-controllersModule.controller('MapCtrl', ['$log', '$scope', '$rootScope', '$timeout', 'GtfsService', MapCtrl]);
+var controllersModule = angular.module(CONTROLLERS_MODULE_NAME);
+controllersModule.controller(CONTROLLER_NAME, ['$log', '$scope', '$rootScope', '$timeout', 'GtfsService', MapCtrl]);
+export default CONTROLLER_NAME;

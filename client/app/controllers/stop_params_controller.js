@@ -5,6 +5,13 @@
  * DS102: Remove unnecessary code created because of implicit returns
  * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
  */
+
+import angular from 'angular';
+import {CONTROLLERS_MODULE_NAME} from "../const";
+
+const CONTROLLER_NAME = "StopParamsCtrl";
+
+
 class StopParamsCtrl {
 
   constructor($scope, $rootScope, GtfsService) {
@@ -30,5 +37,6 @@ class StopParamsCtrl {
 }
 
 
-
-controllersModule.controller('StopParamsCtrl', ['$scope', '$rootScope', 'GtfsService', StopParamsCtrl]);
+var controllersModule = angular.module(CONTROLLERS_MODULE_NAME);
+controllersModule.controller(CONTROLLER_NAME, ['$scope', '$rootScope', 'GtfsService', StopParamsCtrl]);
+export default CONTROLLER_NAME;

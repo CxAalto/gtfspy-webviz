@@ -1,10 +1,8 @@
-// TODO: This file was created by bulk-decaffeinate.
-// Sanity-check the conversion and remove this comment.
-/*
- * decaffeinate suggestions:
- * DS102: Remove unnecessary code created because of implicit returns
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
- */
+import angular from 'angular';
+import {CONTROLLERS_MODULE_NAME} from "../const";
+
+const CONTROLLER_NAME = "AnimParamsCtrl";
+
 class AnimParamsCtrl {
 
   constructor($scope, $rootScope, $log, GtfsService) {
@@ -45,5 +43,7 @@ class AnimParamsCtrl {
 }
 
 
+var controllersModule = angular.module(CONTROLLERS_MODULE_NAME);
+controllersModule.controller(CONTROLLER_NAME, ['$scope', '$rootScope', '$log', 'GtfsService', AnimParamsCtrl]);
+export default CONTROLLER_NAME;
 
-controllersModule.controller('AnimParamsCtrl', ['$scope', '$rootScope', '$log', 'GtfsService', AnimParamsCtrl]);

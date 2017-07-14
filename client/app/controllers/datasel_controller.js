@@ -5,9 +5,16 @@
  * DS102: Remove unnecessary code created because of implicit returns
  * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
  */
-class DataSelectionCtrl {
-  constructor($scope, GtfsService, $rootScope) {
 
+import angular from 'angular';
+import {CONTROLLERS_MODULE_NAME} from "../const";
+
+const CONTROLLER_NAME = "DataSelectionCtrl";
+
+class DataSelectionCtrl {
+
+  constructor($scope, GtfsService, $rootScope) {
+    
     this.$scope = $scope;
     this.GtfsService = GtfsService;
     this.$rootScope = $rootScope;
@@ -20,4 +27,6 @@ class DataSelectionCtrl {
   }
 }
 
-controllersModule.controller('DataSelectionCtrl', ['$scope', 'GtfsService', '$rootScope', DataSelectionCtrl]);
+var controllersModule = angular.module(CONTROLLERS_MODULE_NAME);
+controllersModule.controller(CONTROLLER_NAME, ['$scope', 'GtfsService', '$rootScope', DataSelectionCtrl]);
+export default CONTROLLER_NAME;

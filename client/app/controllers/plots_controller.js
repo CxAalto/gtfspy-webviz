@@ -5,6 +5,12 @@
  * DS102: Remove unnecessary code created because of implicit returns
  * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
  */
+
+import angular from 'angular';
+import {CONTROLLERS_MODULE_NAME} from "../const";
+
+const CONTROLLER_NAME = "PlotsController";
+
 class PlotsController {
 
   constructor($scope, $rootScope, $log, GtfsService, $filter) {
@@ -38,7 +44,7 @@ class PlotsController {
             title: 'Day start'
           },
           yaxis: {
-            title: 'Number of trips per day',
+            title: 'Number of trips per day'
           },
           title: "Trips per day"
         };
@@ -48,4 +54,7 @@ class PlotsController {
   }
 }
 
-controllersModule.controller('PlotsController', ['$scope', '$rootScope', '$log', 'GtfsService', '$filter', PlotsController]);
+var controllersModule = angular.module(CONTROLLERS_MODULE_NAME);
+controllersModule.controller(CONTROLLER_NAME, ['$scope', '$rootScope', '$log', 'GtfsService', '$filter', PlotsController]);
+export default CONTROLLER_NAME;
+

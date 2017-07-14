@@ -1,11 +1,7 @@
-// TODO: This file was created by bulk-decaffeinate.
-// Sanity-check the conversion and remove this comment.
-/*
- * decaffeinate suggestions:
- * DS102: Remove unnecessary code created because of implicit returns
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
- */
+import angular from 'angular';
+import {CONTROLLERS_MODULE_NAME} from "../const";
 
+const CONTROLLER_NAME = "TabCtrl";
 
 class TabCtrl {
   constructor($log, $scope, $rootScope) {
@@ -28,7 +24,6 @@ class TabCtrl {
 }
 
 
-
 const mdtabclick = function() {
   const obj = {
     scope: false,
@@ -40,6 +35,8 @@ const mdtabclick = function() {
   return obj;
 };
 
+var controllersModule = angular.module(CONTROLLERS_MODULE_NAME);
 controllersModule.directive('mdtabclick', mdtabclick);
-controllersModule.controller('TabCtrl', ['$log', '$scope', "$rootScope", TabCtrl]);
+controllersModule.controller(CONTROLLER_NAME, ['$log', '$scope', "$rootScope", TabCtrl]);
 
+export default CONTROLLER_NAME

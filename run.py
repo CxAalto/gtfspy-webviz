@@ -10,6 +10,7 @@ from flask.ext.makestatic import MakeStatic
 from flask.ext.runner import Runner
 
 import settings
+from flask_cors import CORS, cross_origin
 
 if __name__ == '__main__':
     # Development mode: run as main script.
@@ -21,14 +22,20 @@ else:
     BASE_URL = '/transit/'
 
 
-app = Flask(__name__, static_url_path='', static_folder='build/')
+app = Flask(__name__, static_url_path='')
+CORS(app)
 app.config.from_object(__name__)
+
 
 # This provides a HTML toolbar that allows debugging, mainly
 # profiling.  The request must be HTML, minimal working thing is:
 # return '<body>%s</body>'%json.dumps(...)
 #from flask.ext.debugtoolbar import DebugToolbarExtension
 #toolbar = DebugToolbarExtension(app)
+
+@app.route("/")
+def index():
+    return json.dumps({})
 
 if not __name__ == '__main__':
     # If in production: add a logging handler
@@ -37,11 +44,6 @@ if not __name__ == '__main__':
     file_handler = FileHandler('log/log.txt')
     file_handler.setLevel(logging.WARNING)
     app.logger.addHandler(file_handler)
-
-
-@app.route("/")
-def index():
-    return app.send_static_file('gtfs.html')
 
 viz_cache = {}
 
@@ -273,12 +275,12 @@ def view_spreading_explorer():
 application = app  # for deployment via WSGI.
 
 if __name__ == "__main__":
-    makestatic = MakeStatic(app)
+    # makestatic = MakeStatic(app)
     runner = Runner(app)
 
     #app.run()
-    if globals().get('DEBUG', False):
-        makestatic.watch()
+    # if globals().get('DEBUG', False):
+    #    makestatic.watch()
 
     runner.run()
 
