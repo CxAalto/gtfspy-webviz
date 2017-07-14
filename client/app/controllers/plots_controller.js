@@ -48,6 +48,8 @@ class PlotsController {
           },
           title: "Trips per day"
         };
+
+        debugger;
         return np = Plotly.newPlot('tripsperdayplot', [data], layout);
       });
     };

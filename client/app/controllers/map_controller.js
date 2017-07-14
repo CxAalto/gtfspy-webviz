@@ -3,6 +3,10 @@ require('leaflet');
 require("../utils/trip");
 import {CONTROLLERS_MODULE_NAME} from "../const";
 
+import ColorMap from "../utils/colormap";
+
+
+
 const CONTROLLER_NAME = "MapCtrl";
 
 // TODO: This file was created by bulk-decaffeinate.
@@ -61,8 +65,8 @@ class MapCtrl {
 
         this.map = L.map('map',
           {
-            zoom: 12,
-            center: [60.1672803, 24.9429589],
+            zoom: 2,
+            center: [20, 0],
             layers: [cartoDBlight],
             zoomControl: false,
             attributionControl: true
@@ -132,9 +136,9 @@ class MapCtrl {
         stroke: false,
         fillColor: "orange",
         fillOpacity: 1.0,
-        title: "Spreading origin",
+        title: "Spreading origin"
       });
-      circle.setRadius(10).bindLabel("Spreading origin", {noHide: false});
+      circle.setRadius(10).bindTooltip("Spreading origin");
       if (this.map.hasLayer(this.spreadingoriginlayer)) {
         this.map.removeLayer(this.spreadingoriginlayer);
       }
@@ -235,14 +239,13 @@ class MapCtrl {
 
     play(event, args) {
       if (args.play) {
-        return this.animate_gtfs_step(false);
+        this.animate_gtfs_step(false);
       }
     }
 
     play_spreading(event, args) {
-      console.log(args.play);
       if (args.play) {
-        return this.spreading_step(false);
+        this.spreading_step(false);
       }
     }
 
@@ -250,10 +253,12 @@ class MapCtrl {
       this.$rootScope.appdata.loading = true;
       const promise = this.GtfsService.get_anim_trips();
       const t = this;
-      return promise.then(function(data) {
+      return promise.then( (data) => {
         t.$rootScope.appdata.anim_data = data;
         t.init_gtfs_anim();
-        return t.$rootScope.appdata.loading = false;
+        t.$rootScope.appdata.loading = false;
+      }, (data) => {
+        t.$rootScope.appdata.loading = false;
       });
     }
 
@@ -272,33 +277,47 @@ class MapCtrl {
       this.$rootScope.appdata.loading = true;
       const promise = this.GtfsService.fetch_stop_data();
       const t = this;
-      return promise.then( function(data) {
-        t.$rootScope.appdata.stop_data = data;
-        t.draw_stops();
-        return t.$rootScope.appdata.loading = false;
-      });
+      return promise.then(
+        (data) => {
+          t.$rootScope.appdata.stop_data = data;
+          t.draw_stops();
+          return t.$rootScope.appdata.loading = false;
+        },
+        (data) => {
+          t.$rootScope.appdata.loading = false;
+          alert("Stop data could not be loaded");
+        }
+      );
     }
 
     load_and_draw_segments() {
       this.$rootScope.appdata.loading = true;
       const promise = this.GtfsService.fetch_segment_data();
       const t = this;
-      return promise.then( function(data) {
-        t.$rootScope.appdata.segment_data = data;
-        t.draw_segments();
-        return t.$rootScope.appdata.loading = false;
-      });
+      return promise.then(
+        (data) => {
+          t.$rootScope.appdata.segment_data = data;
+          t.draw_segments();
+          t.$rootScope.appdata.loading = false;
+        }, (data) => {
+          t.$rootScope.appdata.loading = false;
+          alert("Segment data could not be loaded");
+        });
     }
 
     load_and_draw_routes() {
       this.$rootScope.appdata.loading = true;
       const promise = this.GtfsService.fetch_route_data();
       const t = this;
-      return promise.then( function(data) {
-        t.$rootScope.appdata.route_data = data;
-        t.draw_routes();
-        return t.$rootScope.appdata.loading = false;
-      });
+      return promise.then(
+        (data) => {
+          t.$rootScope.appdata.route_data = data;
+          t.draw_routes();
+          t.$rootScope.appdata.loading = false;
+        }, (data) => {
+          t.$rootScope.appdata.loading = false;
+          alert("Route data could not be loaded");
+        } );
     }
 
 
@@ -322,11 +341,11 @@ class MapCtrl {
             stroke: false,
             fillColor: trip.getColorByType(),
             fillOpacity: 1.0,
-            title: "unselected",
+            title: "unselected"
         });
 
         // remove vehicle from sight if it is not visible
-        circle.setRadius(4).bindLabel(trip.getName(), {noHide: false});
+        circle.setRadius(4).bindTooltip(trip.getName(), {noHide: false});
         trip_markers.push(circle);
 
         const pointList = [new L.LatLng(0, 0)];
@@ -354,22 +373,25 @@ class MapCtrl {
       }
       this.$rootScope.appdata.anim_data_ready = true;
       this.animate_gtfs_step();
+      this.time_last = null;
       return this.$log.debug("initialised animation");
     }
 
     animate_gtfs_step(run_once) {
-      if (run_once == null) { run_once = true; }
-      const { appdata } = this.$rootScope;
+      if (run_once == null) {
+        run_once = true;
+      }
+
+      const {appdata} = this.$rootScope;
       if (!run_once && appdata.anim_stopped) {
         return;
       }
 
-      const { trip_markers } = this.gtfsanimdata;
-      const { trip_tails } = this.gtfsanimdata;
-      const { trip_layers } = this.gtfsanimdata;
-      const { trips } = this.gtfsanimdata;
-
-      let time_last = new Date().getTime();
+      const {trip_markers} = this.gtfsanimdata;
+      const {trip_tails} = this.gtfsanimdata;
+      const {trip_layers} = this.gtfsanimdata;
+      const {trips} = this.gtfsanimdata;
+      var draw_start_time_real = new Date().getTime();
 
       let n_vehicles = 0;
 
@@ -379,8 +401,8 @@ class MapCtrl {
         const trip = trips[i];
         const trip_type_str = this.triptypenames[Number(trip.type)];
         // should the vehicle be shown? (considering also tail lengths)
-        if (trip.hasStarted(appdata.sim_time+appdata.tail_length) &&
-            (!trip.hasEnded(appdata.sim_time-appdata.tail_length) )) {
+        if (trip.hasStarted(appdata.sim_time + appdata.tail_length) &&
+          (!trip.hasEnded(appdata.sim_time - appdata.tail_length) )) {
 
           if (!this.gtfsanimlayer.hasLayer(trip_layers[i])) {
             // if layer not visible, make it visible:
@@ -392,7 +414,7 @@ class MapCtrl {
           const tail = trip.getTailLatLngs(appdata.sim_time, appdata.tail_length);
           trip_tails[i].setLatLngs(tail);
           // select color
-          trip_markers[i].setStyle({fillOpacity:1.0});
+          trip_markers[i].setStyle({fillOpacity: 1.0});
           // set location
           trip_markers[i].setLatLng(newLatLng);
           // counting of active vehicles
@@ -408,28 +430,28 @@ class MapCtrl {
       }
 
       // rerun if end time has been reached
-      if (appdata.sim_time > appdata.sim_time_max) {
-        appdata.sim_time = appdata.sim_time_min;
-      } else {
-        if (appdata.sim_time < appdata.sim_time_min) {
-          appdata.sim_time = appdata.sim_time_max;
-        }
+      if (appdata.sim_time > appdata.sim_time_max - 1) {
+        appdata.sim_time = appdata.sim_time_min + 1;
+      }
+      if (appdata.sim_time < appdata.sim_time_min + 1) {
+        appdata.sim_time = appdata.sim_time_max - 1;
       }
 
-      const time_now = new Date();
-      const time_spent = time_now-time_last;
-      const refresh_target = 40;
-      const time_out = Math.max(20, refresh_target-time_spent);
-      time_last = time_now;
-      const new_time = this.$rootScope.appdata.sim_time+(((time_spent+time_out)*appdata.sim_speed)/1000.0);
-      this.$rootScope.appdata.sim_time = new_time;
-      this.$rootScope.appdata.n_vehicles = n_vehicles;
-      this.$rootScope.appdata.n_vehicles_by_type = n_vehicles_by_type;
+      const real_time_now = new Date();
+      const real_time_spent = real_time_now - draw_start_time_real;
+      const refresh_target = 100;
+      const sleep_time = Math.max(40, refresh_target - real_time_spent);
+      // this.time_last = real_time_now;
+
+      const new_sim_time = appdata.sim_time + (((real_time_spent + sleep_time) * appdata.sim_speed) / 1000.0);
+
+      appdata.sim_time = new_sim_time;
+      appdata.n_vehicles = n_vehicles;
+      appdata.n_vehicles_by_type = n_vehicles_by_type;
       // 'sleep' for some time, use angulars $timeout
-      return this.$timeout( () => {
-                  return this.animate_gtfs_step(false);
-                }
-                , time_out);
+      return this.$timeout(() => {
+        this.animate_gtfs_step(false)
+      }, sleep_time);
     }
 
     draw_stops() {
@@ -454,7 +476,7 @@ class MapCtrl {
       }
 
       const markers = [];
-      const cmap = new window.ColorMap(["yellow", "red"], [0, count_max], 100);
+      const cmap = new ColorMap(["yellow", "red"], [0, count_max], 100);
 
       for (stop of Array.from(stop_data)) {
         var color, radius;
@@ -477,7 +499,7 @@ class MapCtrl {
         }
 
         const newLatLng = new L.LatLng(lat, lon);
-        const circle = L.circleMarker([0, 0],
+        const circle = L.circleMarker(newLatLng,
           {
             stroke: false,
             fillColor: color,
@@ -485,13 +507,12 @@ class MapCtrl {
             title: "",
           }
         ).setRadius(radius)
-        .bindLabel(name, {noHide: false})
-        .setLatLng(newLatLng);
         markers.push(circle);
       }
       this.stoplayer = L.layerGroup(markers);
       this.stoplayer.addTo(this.map);
       return this.$log.debug(`drew ${markers.length} stops`);
+
     }
 
 
@@ -516,7 +537,7 @@ class MapCtrl {
         }
       }
 
-      const cmap = new window.ColorMap(["yellow", "red"], [0, count_max], 100);
+      const cmap = new ColorMap(["yellow", "red"], [0, count_max], 100);
 
       const segments = [];
       for (let segment of Array.from(segment_data)) {
@@ -544,7 +565,7 @@ class MapCtrl {
           opacity: 0.5,
           smoothFactor: 1
           }
-        ).bindLabel(name + " (" + count + ")", {noHide: false});
+        ).bindTooltip(name + " (" + count + ")", {noHide: false});
         segments.push(segment);
       }
       this.segmentlayer = L.layerGroup(segments);
@@ -602,7 +623,7 @@ class MapCtrl {
             color_i += 1;
           }
         } else {
-          color = window.Trip.getColorByType(route['type']);
+          color = window.Trip.getColorByType(route['route_type']);
         }
 
         const lats = route['lats'];
@@ -636,9 +657,9 @@ class MapCtrl {
           });
 
         if (this.$rootScope.appdata.color_by_agency) {
-          routeLine.bindLabel(`${route['name']} \n ${route["agency"]}`, {noHide: false, direction: 'auto' });
+          routeLine.bindTooltip(`${route['name']} \n ${route["agency"]}`, {noHide: false, direction: 'auto' });
         } else {
-          routeLine.bindLabel(`${route['name']}`, {noHide: false, direction: 'auto' });
+          routeLine.bindTooltip(`${route['name']}`, {noHide: false, direction: 'auto' });
         }
 
         routeLine.on('mouseover', on_hover);
@@ -673,11 +694,11 @@ class MapCtrl {
             stroke: false,
             fillColor: trip.getColorByType(),
             fillOpacity: 1.0,
-            title: "unselected",
+            title: "unselected"
         });
 
         // remove vehicle from sight if it is not visible
-        circle.setRadius(4).bindLabel(trip.getName(), {noHide: false});
+        circle.setRadius(4).bindTooltip(trip.getName(), {noHide: false});
         trip_markers.push(circle);
 
         const pointList = [new L.LatLng(0, 0)];
@@ -767,18 +788,16 @@ class MapCtrl {
 
       const time_now = new Date();
       const time_spent = time_now-time_last;
-      const refresh_target = 40;
+      const refresh_target = 1000;
       const time_out = Math.max(20, refresh_target-time_spent);
       time_last = time_now;
       const new_time = this.$rootScope.appdata.spreading_sim_time+(((time_spent+time_out)*appdata.spreading_sim_speed)/1000.0);
       this.$rootScope.appdata.spreading_sim_time = new_time;
       this.$rootScope.appdata.n_vehicles = n_vehicles;
       this.$rootScope.appdata.n_vehicles_by_type = n_vehicles_by_type;
+      debugger;
       // 'sleep' for some time, use angulars $timeout
-      return this.$timeout( () => {
-                  return this.spreading_step(false);
-                }
-                , time_out);
+      return this.$timeout( () => {return this.spreading_step(false);}, time_out);
     }
   }
 

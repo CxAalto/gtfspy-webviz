@@ -13,7 +13,8 @@
 
                             <div class="flexContainer flexRowContainer flexAlignBaseline flexSpaceAround">
 
-                                <md-button ng-disabled="!appdata.data_loadable" class="md-raised md-primary flexFixed"
+                                <md-button ng-disab
+                                           d="!appdata.data_loadable" class="md-raised md-primary flexFixed"
                                            ng-click="load_anim_data()">LOAD ANIMATION
                                 </md-button>
 
@@ -51,7 +52,7 @@
                                 <input type="range" flex="80" min="{{appdata.sim_time_min}}"
                                        max="{{appdata.sim_time_max}}" ng-model="appdata.sim_time" id="sim-time-slider"
                                        aria-label="sim-time-slider" ng-disabled="!appdata.anim_data_ready"
-                                        class="flexGrow" ng-change="step_anim()">
+                                        class="flexGrow"">
                                 <!-- md-slider has weird updating problems with angular -> not in use
                                  <md-slider flex="80" min="{{appdata.sim_time_min}}" max="{{appdata.sim_time_max}}" ng-model="appdata.sim_time" id="sim-time-slider" class="md-primary noanim" aria-label="sim-time-slider" ng-disabled="!appdata.anim_data_ready"></md-slider> -->
                                 <input class="flexFixed"  type="number" ng-model="appdata.sim_time">
@@ -66,7 +67,7 @@
                         <md-button class="md-raised md-primary flexFixed" ng-click="load_stats()">LOAD STATS</md-button>
                         <div class="flexContainer flexRowContainer flexSpaceAround">
                             <table>
-                                <tr id="stats" ng-repeat="el in appdata.stats | orderBy:'key'"
+                                <tr id="stats1" ng-repeat="el in appdata.stats | orderBy:'key'"
                                     ng-if="$index < appdata.stats.length/2">
                                     <td> {{el.key}}</td>
                                     <td> {{el.value}}</td>
@@ -74,7 +75,7 @@
                             </table>
 
                             <table>
-                                <tr id="stats" ng-repeat="el in appdata.stats | orderBy:'key'"
+                                <tr id="stats2" ng-repeat="el in appdata.stats | orderBy:'key'"
                                     ng-if="$index >= appdata.stats.length/2">
                                     <td> {{el.key}}</td>
                                     <td> {{el.value}}</td>

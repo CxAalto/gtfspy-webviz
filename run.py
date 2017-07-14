@@ -125,7 +125,7 @@ def get_dbfname(dbfname):
         return None
     return commonprefix + dbfname
 
-@app.route("/gtfsdbs")
+@app.route("/databases")
 def available_gtfs_dbs():
     """
     Returns available databases and the timezone for each database.
@@ -146,9 +146,8 @@ def available_gtfs_dbs():
     # return json.dumps(data)
 
 
-@app.route("/gtfs_viz")
+@app.route("/trajectories")
 def get_scheduled_trips_within_interval():
-    #print request.args
     tstart = request.args.get('tstart', None)
     tend = request.args.get('tend', None)
     dbfname = get_dbfname(request.args.get('dbfname', None))
@@ -168,7 +167,7 @@ def get_scheduled_trips_within_interval():
     trips = G.get_trip_trajectories_within_timespan(start=tstart, end=tend, use_shapes=False)
     return json.dumps(trips)
 
-@app.route("/gtfsstats")
+@app.route("/stats")
 def get_gtfs_stats():
     dbfname = get_dbfname(request.args.get('dbfname', None))
     if not dbfname:
@@ -191,17 +190,21 @@ def get_start_and_end_time_ut():
     }
     return json.dumps(data)
 
-@app.route("/gtfstripsperday")
+@app.route("/tripsperday")
 def get_trip_counts_per_day():
     dbfname = get_dbfname(request.args.get('dbfname', None))
     if not dbfname:
         return json.dumps({})
     g = gtfs.GTFS(dbfname)
     data = g.get_trip_counts_per_day()
-    return json.dumps(data.to_dict(orient="list"))
+    data_dict = {
+        "trip_counts": [int(c) for c in data["trip_counts"].values],
+        "dates": [str(date) for date in data["date_str"].values]
+    }
+    return json.dumps(data_dict)
 
 
-@app.route("/stopdata")
+@app.route("/stopcounts")
 def view_stop_data():
     #print request.args
     tstart = int(request.args.get('tstart', None))
@@ -213,7 +216,7 @@ def view_stop_data():
     # json.dumps(stopdata.to_dict("records"))
 
 
-@app.route("/segmentdata")
+@app.route("/linkcounts")
 def view_segment_data():
     #print request.args
     tstart = int(request.args.get('tstart', None))
@@ -229,7 +232,7 @@ def view_segment_data():
     return json.dumps(data)
 
 
-@app.route("/getroutes")
+@app.route("/routes")
 def view_line_data():
     #print request.args
     dbfname = get_dbfname(request.args.get('dbfname', None))
@@ -240,7 +243,25 @@ def view_line_data():
         shapes = False
     G = gtfs.GTFS(dbfname)  # handles connections to database etc.
     data = G.get_all_route_shapes(use_shapes=shapes)
-    return json.dumps(data)
+
+    routes = []
+    for raw_route in data:
+        agency = raw_route["agency"]
+        lats = [float(lat) for lat in raw_route['lats']]
+        lons = [float(lon) for lon in raw_route['lons']]
+        route_type = int(raw_route['type'])
+        name = str(raw_route['name'])
+        agency_name = str(raw_route['agency_name'])
+        route = {
+            "agency": agency,
+            "lats": lats,
+            "lons": lons,
+            "route_type": route_type,
+            "name": name,
+            "agency_name": agency_name
+        }
+        routes.append(route)
+    return json.dumps(routes)
 
 
 @app.route("/spreading")

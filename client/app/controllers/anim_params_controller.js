@@ -31,8 +31,9 @@ class AnimParamsCtrl {
     };
 
     this.$scope.step_anim = () => {
-      console.log("step!");
-      return this.$rootScope.$broadcast('step_anim');
+      if (this.$rootScope.appdata.anim_data_ready) {
+        this.$rootScope.$broadcast('step_anim');
+      };
     };
 
     this.$scope.toggle_anim_visibility = () => {

@@ -8,7 +8,11 @@
  * DS202: Simplify dynamic range loops
  * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
  */
-window.ColorMap = class ColorMap {
+
+import _ from "lodash";
+
+
+class ColorMap {
 
   constructor(colors, origValues, ndivs, full_interpolate) {
     // values should be in increasing order
@@ -129,3 +133,5 @@ function __range__(left, right, inclusive) {
   }
   return range;
 }
+
+export default ColorMap;
