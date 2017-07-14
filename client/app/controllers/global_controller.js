@@ -4,6 +4,7 @@ import {CONTROLLERS_MODULE_NAME} from "../const";
 const CONTROLLER_NAME = "GlobalCtrl";
 
 export class GlobalCtrl {
+
   constructor($log, $scope) {
 
     this.$log = $log;
