@@ -1,5 +1,6 @@
 import angular from 'angular';
-require('leaflet');
+require('../../../node_modules/leaflet/dist/leaflet-src.js');
+require('../../../node_modules/leaflet/dist/leaflet.css');
 require("../utils/trip");
 import {CONTROLLERS_MODULE_NAME} from "../const";
 
@@ -108,24 +109,25 @@ class MapCtrl {
         this.triptypenames = window.Trip.getTypeNames();
 
         // layers:
-        this.gtfsanimlayer = L.layerGroup([]);
+        this.animationLayer = L.layerGroup([]);
         this.stoplayer = L.layerGroup([]);
         this.segmentlayer = L.layerGroup([]);
         this.routelayer = L.layerGroup([]);
         this.spreadinglayer = L.layerGroup([]);
         this.spreadingoriginlayer = L.layerGroup([]);
-        // inits layers:
+
         this.map.on('click', this.set_spreading_latlng);
       }
 
     set_spreading_latlng(e) {
+      console.log(e);
       if (this.$rootScope.appdata.tabToShow === "SPREADING") {
         this.$log.debug("Setting spreading origin to:" , e.latlng);
         this.$rootScope.appdata.spreading_lat = e.latlng.lat;
         this.$rootScope.appdata.spreading_lon = e.latlng.lng;
-        if (this.$rootScope.appdata.spreading_visible) {
-          return this.add_spreading_origin();
-        }
+        // force rootScope update cycle, as leaflet mouse-events are not tracked (?)
+        this.$rootScope.$apply();
+        this.add_spreading_origin();
       }
     }
 
@@ -143,14 +145,14 @@ class MapCtrl {
         this.map.removeLayer(this.spreadingoriginlayer);
       }
       this.spreadingoriginlayer = circle;
-      return this.toggle_spreading_layer();
+      this.toggle_spreading_layer();
     }
       // updates visibility of the spreadingorigin as necessary
 
     clear_layers(event) {
       return (() => {
         const result = [];
-        for (let layer of [this.gtfsanimlayer, this.stoplayer, this.segmentlayer,
+        for (let layer of [this.animationLayer, this.stoplayer, this.segmentlayer,
                     this.routelayer, this.spreadinglayer, this.spreadingoriginlayer]) {
           if (this.map.hasLayer(layer)) {
             this.map.removeLayer(layer);
@@ -184,12 +186,12 @@ class MapCtrl {
 
     toggle_anim_layer(event) {
       if (this.$rootScope.appdata.anim_visible) {
-        if (!this.map.hasLayer(this.gtfsanimlayer)) {
-          return this.gtfsanimlayer.addTo(this.map);
+        if (!this.map.hasLayer(this.animationLayer)) {
+          return this.animationLayer.addTo(this.map);
         }
       } else {
-        if (this.map.hasLayer(this.gtfsanimlayer)) {
-          return this.map.removeLayer(this.gtfsanimlayer);
+        if (this.map.hasLayer(this.animationLayer)) {
+          return this.map.removeLayer(this.animationLayer);
         }
       }
     }
@@ -323,10 +325,10 @@ class MapCtrl {
 
     init_gtfs_anim() {
       this.$log.debug("initialising animation");
-      if (this.map.hasLayer(this.gtfsanimlayer)) {
-        this.map.removeLayer(this.gtfsanimlayer);
+      if (this.map.hasLayer(this.animationLayer)) {
+        this.map.removeLayer(this.animationLayer);
       }
-      this.gtfsanimlayer = L.layerGroup([]);
+      this.animationLayer = L.layerGroup([]);
       this.gtfsanimdata = null;
 
       const trip_markers = [];
@@ -367,9 +369,9 @@ class MapCtrl {
       this.gtfsanimdata.trip_tails = trip_tails;
       this.gtfsanimdata.trip_layers = trip_layers;
       this.gtfsanimdata.trips = trips;
-      this.gtfsanimlayer = L.layerGroup(trip_layers);
+      this.animationLayer = L.layerGroup(trip_layers);
       if (this.$rootScope.appdata.anim_visible) {
-        this.gtfsanimlayer.addTo(this.map);
+        this.animationLayer.addTo(this.map);
       }
       this.$rootScope.appdata.anim_data_ready = true;
       this.animate_gtfs_step();
@@ -404,9 +406,9 @@ class MapCtrl {
         if (trip.hasStarted(appdata.sim_time + appdata.tail_length) &&
           (!trip.hasEnded(appdata.sim_time - appdata.tail_length) )) {
 
-          if (!this.gtfsanimlayer.hasLayer(trip_layers[i])) {
+          if (!this.animationLayer.hasLayer(trip_layers[i])) {
             // if layer not visible, make it visible:
-            this.gtfsanimlayer.addLayer(trip_layers[i]);
+            this.animationLayer.addLayer(trip_layers[i]);
           }
 
           // compute new locations
@@ -425,7 +427,7 @@ class MapCtrl {
           n_vehicles = n_vehicles + 1;
         } else {
           // remove vehicle from sight if it is not visible
-          this.gtfsanimlayer.removeLayer(trip_layers[i]);
+          this.animationLayer.removeLayer(trip_layers[i]);
         }
       }
 
@@ -443,9 +445,7 @@ class MapCtrl {
       const sleep_time = Math.max(40, refresh_target - real_time_spent);
       // this.time_last = real_time_now;
 
-      const new_sim_time = appdata.sim_time + (((real_time_spent + sleep_time) * appdata.sim_speed) / 1000.0);
-
-      appdata.sim_time = new_sim_time;
+      appdata.sim_time = appdata.sim_time + (((real_time_spent + sleep_time) * appdata.sim_speed) / 1000.0);
       appdata.n_vehicles = n_vehicles;
       appdata.n_vehicles_by_type = n_vehicles_by_type;
       // 'sleep' for some time, use angulars $timeout
@@ -495,7 +495,6 @@ class MapCtrl {
         } else {
           color = "red";
           radius = 3;
-          name = `${name}`;
         }
 
         const newLatLng = new L.LatLng(lat, lon);
@@ -504,9 +503,10 @@ class MapCtrl {
             stroke: false,
             fillColor: color,
             fillOpacity: 1.0,
-            title: "",
+            title: ""
           }
-        ).setRadius(radius)
+        ).setRadius(radius).bindTooltip(name);
+
         markers.push(circle);
       }
       this.stoplayer = L.layerGroup(markers);
@@ -617,7 +617,6 @@ class MapCtrl {
           if (agency in agency_to_color) {
             color = agency_to_color[agency];
           } else {
-            console.log("new color");
             color = this.categoryColors[color_i % n_colors];
             agency_to_color[agency] = color;
             color_i += 1;
@@ -729,8 +728,7 @@ class MapCtrl {
       return this.$log.debug("initialised spreading");
     }
 
-    spreading_step(run_once) {
-      if (run_once == null) { run_once = true; }
+    spreading_step(run_once=true) {
       const { appdata } = this.$rootScope;
       if (!run_once && appdata.spreading_stopped) {
         return;
@@ -741,7 +739,7 @@ class MapCtrl {
       const { trip_layers } = this.spreadingdata;
       const { trips } = this.spreadingdata;
 
-      let time_last = new Date().getTime();
+      var draw_start_time_real = new Date().getTime();
 
       let n_vehicles = 0;
       const n_vehicles_by_type = {};
@@ -778,26 +776,26 @@ class MapCtrl {
       }
 
       // rerun if end time has been reached
-      if (appdata.spreading_sim_time > appdata.spreading_sim_time_max) {
-        appdata.spreading_sim_time = appdata.spreading_sim_time_min;
-      } else {
-        if (appdata.spreading_sim_time < appdata.spreading_sim_time_min) {
-          appdata.spreading_sim_time = appdata.spreading_sim_time_max;
-        }
+      if (appdata.spreading_sim_time > appdata.spreading_sim_time_max - 1) {
+        appdata.spreading_sim_time = appdata.spreading_sim_time_min + 1;
+      }
+      if (appdata.spreading_sim_time < appdata.spreading_sim_time_min) {
+        appdata.spreading_sim_time = appdata.spreading_sim_time_max - 1;
       }
 
-      const time_now = new Date();
-      const time_spent = time_now-time_last;
-      const refresh_target = 1000;
-      const time_out = Math.max(20, refresh_target-time_spent);
-      time_last = time_now;
-      const new_time = this.$rootScope.appdata.spreading_sim_time+(((time_spent+time_out)*appdata.spreading_sim_speed)/1000.0);
-      this.$rootScope.appdata.spreading_sim_time = new_time;
-      this.$rootScope.appdata.n_vehicles = n_vehicles;
-      this.$rootScope.appdata.n_vehicles_by_type = n_vehicles_by_type;
-      debugger;
+      const real_time_now = new Date();
+      const real_time_spent = real_time_now - draw_start_time_real;
+      const refresh_target = 100;
+      const sleep_time = Math.max(40, refresh_target - real_time_spent);
+      const time_out = Math.max(20, refresh_target-real_time_spent);
+      appdata.spreading_sim_time = appdata.spreading_sim_time + (((real_time_spent + sleep_time) * appdata.spreading_sim_speed) / 1000.0);
+
       // 'sleep' for some time, use angulars $timeout
-      return this.$timeout( () => {return this.spreading_step(false);}, time_out);
+      if (run_once) {
+        return;
+      } else {
+        return this.$timeout( () => {return this.spreading_step(false);}, time_out);
+      }
     }
   }
 

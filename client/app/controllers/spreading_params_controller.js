@@ -38,7 +38,6 @@ class SpreadingParamsCtrl {
     };
 
     this.$scope.step_spreading = () => {
-      console.log("step!");
       return this.$rootScope.$broadcast('step_spreading');
     };
 

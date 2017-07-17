@@ -6,8 +6,6 @@ import ngAnimate from "angular-animate";
 import ngAria from "angular-aria";
 
 import 'bootstrap/dist/css/bootstrap.css';
-require("../lib/leaflet/leaflet.css");
-require("../lib/leaflet-label.css");
 require("../lib/material-design-lite/material.min.css");
 require("../style/gtfs.css");
 require("../style/slider.css");
