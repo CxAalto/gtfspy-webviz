@@ -1,13 +1,20 @@
+-------------
+gtfspy-webviz
+-------------
 
 ![Screenshot](docs/sample_image.png?raw=true "Screenshot")
 
-
-
 Prerequisites
 -------------
-- Python 3.5. 
+- Python 3.5
 - node & npm: https://nodejs.org/
-- make 
+
+An easy way to get things going with Python 3.5 is to use [conda](https://www.continuum.io/downloads):
+
+```
+conda create --name gtfspy-webviz python=3.5
+source activate gtfspy-webviz
+```
 
 To install
 ----------
@@ -21,14 +28,8 @@ To specify database directories
 -------------------------------
 Change the DB_DIR variable in the settings.py file.
 
-License
--------
-All files under directories src/js src/html src/css are licensed under MIT license.
-Javascript libraries under src/lib are licensed under.
-
 To run
 ------
-Run the following commands 
 
 ```
 python run.py # starts the server
@@ -36,6 +37,11 @@ npm start # starts the development environment
 ```
 
 Open http://localhost:8080/ in your browser.
+
+License
+-------
+All files under directories src/js src/html src/css are licensed under MIT license.
+Javascript libraries under src/lib are licensed under.
 
 Main author 
 -----------
