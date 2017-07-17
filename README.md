@@ -14,7 +14,7 @@ To install
 
 ```
 pip install -r requirements.txt
-npm install coffee-script --save
+npm install
 ```
 
 To specify database directories
@@ -28,10 +28,14 @@ Javascript libraries under src/lib are licensed under.
 
 To run
 ------
+Run the following commands 
 
 ```
-python run.py
+python run.py # starts the server
+npm start # starts the development environment
 ```
+
+Open http://localhost:8080/ in your browser.
 
 Main author 
 -----------

@@ -10,14 +10,15 @@ require("../lib/material-design-lite/material.min.css");
 require("../style/gtfs.css");
 require("../style/slider.css");
 
-// Do some initialization before running any of the other scripts, hackish..
+// Do some initialization before running any of the other scripts, hackish... but works
+// Perhaps the controllers should be added to the app.controllers -module only here
 import init from "./init";
 import {CONTROLLERS_MODULE_NAME, SERVICES_MODULE_NAME, APP_MODULE_NAME} from "./const";
 import globalCtrl from './controllers/global_controller';
 import gtfsService from "./services/gtfs_service";
 import initParams from "./init_data"
 
-// Required for the webpack to build properly
+// Required for webpack to create a proper build
 import tabCtrl from './controllers/tab_controller';
 import mapCtrl from './controllers/map_controller';
 import segmentParamsCtrl from './controllers/segment_params_controller';
