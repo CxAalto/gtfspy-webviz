@@ -41,11 +41,11 @@ module.exports = function makeWebpackConfig() {
    */
   config.output = isTest ? {} : {
     // Absolute output directory
-    path: __dirname + '/dist',
+    path: __dirname + '/build',
 
     // Output path from the view of the page
     // Uses webpack-dev-server in development
-    publicPath: isProd ? '/' : 'http://localhost:8080/',
+    publicPath: isProd ? 'http://transportnetworks.cs.aalto.fi/webviz' : 'http://localhost:8080/',
 
     // Filename for entry points
     // Only adds hash in build mode
@@ -192,15 +192,15 @@ module.exports = function makeWebpackConfig() {
     config.plugins.push(
       // Reference: http://webpack.github.io/docs/list-of-plugins.html#noerrorsplugin
       // Only emit files when there are no errors
-      new webpack.NoErrorsPlugin(),
+      new webpack.NoEmitOnErrorsPlugin(),
 
       // Reference: http://webpack.github.io/docs/list-of-plugins.html#dedupeplugin
       // Dedupe modules in the output
-      new webpack.optimize.DedupePlugin(),
+      // new webpack.optimize.DedupePlugin(),
 
       // Reference: http://webpack.github.io/docs/list-of-plugins.html#uglifyjsplugin
       // Minify all javascript, switch loaders to minimizing mode
-      new webpack.optimize.UglifyJsPlugin(),
+      // new webpack.optimize.UglifyJsPlugin(),
 
       // Copy assets from the public folder
       // Reference: https://github.com/kevlened/copy-webpack-plugin

@@ -4,7 +4,8 @@
   "description": "Web visualizer for gtfspy",
   "main": "index.js",
   "scripts": {
-    "build": "rimraf dist && webpack --bail --progress --profile",
+    "build": "rimraf build && webpack --bail --progress --profile",
+    "clean": "rimraf build",
     "server": "webpack-dev-server --history-api-fallback --inline --progress",
     "test": "karma start",
     "test-watch": "karma start --auto-watch --no-single-run",

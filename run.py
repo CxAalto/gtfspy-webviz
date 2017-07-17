@@ -6,8 +6,8 @@ from glob import glob
 from flask import Flask, request
 from gtfspy import gtfs
 from gtfspy import stats
-from flask.ext.makestatic import MakeStatic
 from flask.ext.runner import Runner
+
 
 import settings
 from flask_cors import CORS, cross_origin
@@ -34,8 +34,9 @@ app.config.from_object(__name__)
 #toolbar = DebugToolbarExtension(app)
 
 @app.route("/")
+@app.route("/dummy2")
 def index():
-    return json.dumps({})
+    return json.dumps({"url": str(request.url), "query_string": str(request.query_string)})
 
 if not __name__ == '__main__':
     # If in production: add a logging handler

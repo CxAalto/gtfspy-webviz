@@ -17,10 +17,10 @@ class GtfsService {
     // path prefix:
     this.$log.debug(`Running on: ${this.$location.host()}`);
     if ((needle = this.$location.host(), ["localhost", "127.0.0.1"].includes(needle))) {
-      this.host = "http://127.0.0.1:5000";
+      this.apiEndPoint = "http://127.0.0.1:5000";
     } else {
       // i.e. if on the production server:
-      this.host = "/webviz";
+      this.apiEndPoint = "/webviz/api";
     }
   }
 
@@ -29,7 +29,7 @@ class GtfsService {
     const deferred = this.$q.defer();
     // get list of GTFS databases
 
-    var url = this.host + "/databases";
+    var url = this.apiEndPoint + "/databases";
     this.$http.get(url).then((response) => {
       var json = response.data;
 
@@ -52,7 +52,7 @@ class GtfsService {
     const {dbfname} = this.$rootScope.appdata;
     this.$log.debug(`fetching stats for ${dbfname}`);
     const deferred = this.$q.defer();
-    this.$http.get(this.host + "/stats?dbfname=" + dbfname)
+    this.$http.get(this.apiEndPoint + "/stats?dbfname=" + dbfname)
       .then(
         (response) => {
           var json = response.data;
@@ -102,7 +102,7 @@ class GtfsService {
         shapestr = 1;
       }
 
-      var url = this.host + "/trajectories?tstart=" + start_time + "&tend=" + end_time +
+      var url = this.apiEndPoint + "/trajectories?tstart=" + start_time + "&tend=" + end_time +
         "&dbfname=" + dbfname + "&use_shapes=" + shapestr;
       this.$http.get(url)
         .then(
@@ -139,7 +139,7 @@ class GtfsService {
 
     const thisservice = this; // weird scoping of "this" in the below @$http.get...
     const query = `/stopcounts?tstart=${start_time}&tend=${end_time}&dbfname=${dbfname}`;
-    this.$http.get(this.host + query)
+    this.$http.get(this.apiEndPoint + query)
       .then(
         (response) => {
           var stop_data = response.data;
@@ -177,7 +177,7 @@ class GtfsService {
 
     const thisservice = this; // weird scoping of "this" in the below @$http.get...
     const query = `/linkcounts?tstart=${start_time}&tend=${end_time}&dbfname=${dbfname}&use_shapes=${shapestr}`;
-    this.$http.get(this.host + query)
+    this.$http.get(this.apiEndPoint + query)
       .then(
         (response) => {
           var segment_data = response.data;
@@ -215,7 +215,7 @@ class GtfsService {
 
     const thisservice = this; // weird scoping of "this" in the below @$http.get...
     const query = `/routes?&dbfname=${dbfname}&use_shapes=${shapestr}`;
-    this.$http.get(this.host + query)
+    this.$http.get(this.apiEndPoint + query)
       .then(
         (response) => {
           var route_data = response.data;
@@ -247,7 +247,7 @@ class GtfsService {
 
     const query = `/tripsperday?dbfname=${dbfname}`;
     const thisservice = this;
-    this.$http.get(this.host + query)
+    this.$http.get(this.apiEndPoint + query)
       .then(
         (response) => {
           var statsdata = response.data;
@@ -283,7 +283,7 @@ class GtfsService {
 
     // get time-dependent 'spreading' trips starting between start_time and end_time
     const deferred = this.$q.defer();
-    var url = this.host + "/spreading?tstart=" + start_time + "&tend=" + end_time + "&lat=" + lat + "&lon=" + lon + "&dbfname=" + dbfname
+    var url = this.apiEndPoint + "/spreading?tstart=" + start_time + "&tend=" + end_time + "&lat=" + lat + "&lon=" + lon + "&dbfname=" + dbfname
     this.$http.get(url)
       .then(
         (response) => {

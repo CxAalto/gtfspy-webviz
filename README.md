@@ -38,6 +38,15 @@ npm start # starts the development environment
 
 Open http://localhost:8080/ in your browser.
 
+
+To build the front-end
+----------------------
+```
+npm run-script build`
+``
+
+
+
 License
 -------
 All files under directories src/js src/html src/css are licensed under MIT license.
