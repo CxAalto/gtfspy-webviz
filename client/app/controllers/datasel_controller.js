@@ -22,7 +22,7 @@ class DataSelectionCtrl {
       this.$rootScope.appdata.dbfname = this.$scope.selected_dbfname;
       this.$rootScope.appdata.show_footer = true;
       this.$rootScope.appdata.show_data_select = false;
-      return this.GtfsService.fetch_stats();
+      this.GtfsService.fetch_stats();
     };
   }
 }

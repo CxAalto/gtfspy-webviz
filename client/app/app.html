@@ -240,8 +240,11 @@
     <div id="mapContainer" class="flexGrow flexContainer flexColumn" ng-controller="MapCtrl">
 
         <div id="loading">
-            <md-progress-circular ng-show="appdata.loading" class="md-warn" md-diameter="250px"
-                                  md-mode="indeterminate"></md-progress-circular>
+            <md-progress-circular ng-show="appdata.loading"
+                                  class="md-warn"
+                                  md-diameter="100px"
+                                  md-mode="indeterminate">
+            </md-progress-circular>
         </div>
 
         <div layout id="map" class="flexGrow"></div>
@@ -257,7 +260,8 @@
 
         <div id="mapOverLayButtons">
             <md-button id="dataselShowBtn" class="md-raised" ng-show="!appdata.show_data_select"
-                       ng-click="appdata.show_data_select = !appdata.show_data_select">CHANGE DATA SET
+                       ng-click="appdata.show_data_select = !appdata.show_data_select; resize_map();">
+            CHANGE DATA SET
             </md-button>
             <md-button id="footerShowBtn" class="md-raised" ng-show="!appdata.show_footer"
                        ng-click="appdata.toggleFooter()">SHOW OPTIONS

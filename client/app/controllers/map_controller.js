@@ -164,7 +164,8 @@ class MapCtrl {
     }
 
     resize_map(event) {
-      return this.map.invalidateSize();
+        // Add a delay before updating as CSS transitions can take up some time.
+        window.setTimeout( () => this.map.invalidateSize(), 400);
     }
 
     set_map_bounds(event) {
