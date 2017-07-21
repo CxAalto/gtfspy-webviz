@@ -48,7 +48,7 @@ To build the front-end
 ----------------------
 ```
 npm run-script build`
-``
+```
 
 Main author 
 -----------
@@ -56,7 +56,7 @@ Main author
 
 Other contributors
 ------------------
-Richard Darst, ...
+Richard Darst, Christoffer Weckström
 
 Ackwnowledgements
 -----------------
