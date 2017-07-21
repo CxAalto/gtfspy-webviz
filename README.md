@@ -6,7 +6,8 @@ Visualizing public transport schedule data (GTFS) interactively in a web-browser
 
 ![Screenshot](docs/sample_image.png?raw=true "Screenshot")
 
-For the time being, a live demo can be found here: [http://transportnetworks.cs.aalto.fi/webviz/](http://transportnetworks.cs.aalto.fi/webviz/).
+A live demo can be found here: [http://transportnetworks.cs.aalto.fi/webviz/](http://transportnetworks.cs.aalto.fi/webviz/).
+See also [this video](https://youtu.be/JaDrBE45hro?t=19) showing how-to use the tool.
 
 
 Prerequisites
