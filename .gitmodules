@@ -1,0 +1,3 @@
+[submodule "gtfspy"]
+	path = gtfspy
+	url = git@github.com:CxAalto/gtfspy.git

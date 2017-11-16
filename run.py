@@ -6,7 +6,7 @@ from glob import glob
 from flask import Flask, request
 from gtfspy import gtfs
 from gtfspy import stats
-from flask.ext.runner import Runner
+from flask_runner import Runner
 
 
 import settings
