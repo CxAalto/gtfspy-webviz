@@ -15,8 +15,6 @@ from flask_cors import CORS, cross_origin
 if __name__ == '__main__':
     # Development mode: run as main script.
     DEBUG = True
-    # Obviously this must be changed in production...
-    SECRET_KEY = "/jrEA|'OSMV#s#Y<ziiM'h.cuS&jKY"
 else:
     # Production mode.  Currently under URL /transit/
     BASE_URL = '/transit/'
@@ -297,13 +295,7 @@ def view_spreading_explorer():
 application = app  # for deployment via WSGI.
 
 if __name__ == "__main__":
-    # makestatic = MakeStatic(app)
     runner = Runner(app)
-
-    #app.run()
-    # if globals().get('DEBUG', False):
-    #    makestatic.watch()
-
     runner.run()
 
 
