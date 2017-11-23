@@ -32,15 +32,9 @@ class GtfsService {
     var url = this.apiEndPoint + "/databases";
     this.$http.get(url).then((response) => {
       var json = response.data;
-
       this.$rootScope.appdata.dbfnames = json['dbfnames'];
       this.$rootScope.appdata.timezones = json['timezones'];
-      // if not @$rootScope.dbfname?
-      //   @$rootScope.appdata.dbfname = json['dbfnames'][0]
-      //  console.log @$rootScope.appdata.dbfname
       this.$log.debug("fetched list of databases and timezones");
-      this.$log.debug(this.$rootScope);
-
       return deferred.resolve();
     }, (response) => {
       deferred.reject()

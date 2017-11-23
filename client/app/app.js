@@ -51,11 +51,9 @@ let app = () => {
 // var servicesModule = angular.module(SERVICES_MODULE_NAME, []);
 app = angular.module(APP_MODULE_NAME, dependencies).directive('app', app);
 
-console.log(app);
-
 app.run([gtfsService, "$rootScope", (GtfsService, $rootScope) => {
   $rootScope.appdata = initParams;
-  GtfsService.fetch_databases()
+  GtfsService.fetch_databases();
 }]);
 
 app.directive('stringtonumber', () =>
