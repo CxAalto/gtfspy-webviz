@@ -53,9 +53,13 @@ class GtfsService {
           deferred.resolve(json);
           this.$log.debug(`fetched stats for${dbfname}`);
           // set start, end and center of time span:
-          this.$rootScope.appdata.data_start_min = json['start_time_ut'];
-          this.$rootScope.appdata.data_start_max = json['end_time_ut'];
-          this.$rootScope.appdata.data_start = Number(json['start_time_ut']) + (8 * 3600);
+          this.$rootScope.appdata.data_start_min = Number(json['start_time_ut']);
+          this.$rootScope.appdata.data_start_max = Number(json['end_time_ut']);
+          this.$rootScope.appdata.data_start = Number(json['start_time_ut']) + ((24 + 8) * 3600);
+          if (this.$rootScope.appdata.data_start_max < this.$rootScope.appdata.data_start) {
+              alert('Only one day long data set?');
+              this.$rootScope.appdata.data_start -= 24 * 3600;
+          }
           // set map bounds according to LatLngBounds format
           this.$rootScope.appdata.data_map_bounds = [[json['lat_min'], json['lon_min']], [json['lat_max'], json['lon_max']]];
           this.$rootScope.$broadcast('newdbselected');
