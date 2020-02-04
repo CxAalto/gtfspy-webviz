@@ -64,7 +64,7 @@ Other contributors
 ------------------
 Richard Darst, Christoffer Weckström
 
-Ackwnowledgements
+Acknowledgements
 -----------------
 The development of this visualization tool has benefited from the support by Academy of Finland through the DeCoNet project.
 
